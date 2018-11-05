@@ -30,11 +30,14 @@ class KanbanBoard extends React.Component {
             // reorder in the same column
             if (source.droppableId === destination.droppableId){
 
-                const columndKey = source.droppableId;
+                const columnKey = source.droppableId;
 
-                let columnClone = Object.assign({}, this.state.columns[columndKey]);
+                let columnClone = Object.assign({}, this.state.columns[columnKey]);
                 let [removed] = columnClone.cardIds.splice(source.index, 1);
                 columnClone.cardIds.splice(destination.index, 0, removed);
+
+                const columnsClone = Object.assign({}, this.state.columns);
+                columnsClone[columnKey] = columnClone;
 
                 let apiData = columnClone.cardIds.map((cardId, index) => {
                     return {cardId: cardId, columnId: source.droppableId, position: index}
@@ -46,19 +49,25 @@ class KanbanBoard extends React.Component {
                     body: JSON.stringify(apiData)
                 });
 
-                this.setState({});
+                this.setState({
+                    columns: columnsClone
+                });
             }
 
             // so it was moved in the other column
             else {
                 let sourceColumn = this.state.columns[source.droppableId];
-                let destinationColumn = this.state.columns[destination.droppableId]
+                let destinationColumn = this.state.columns[destination.droppableId];
 
                 let clonedSourceColumn = Object.assign({}, sourceColumn);
                 let clonedDestinationColumn = Object.assign({}, destinationColumn);
 
                 let [removed] = clonedSourceColumn.cardIds.splice(source.index, 1);
                 clonedDestinationColumn.cardIds.splice(destination.index, 0, removed);
+
+                const columnsClone = Object.assign({}, this.state.columns);
+                columnsClone[source.droppableId] = clonedSourceColumn;
+                columnsClone[destination.droppableId] = clonedDestinationColumn;
 
                 let apiData = [];
 
@@ -75,7 +84,9 @@ class KanbanBoard extends React.Component {
                     body: JSON.stringify(apiData)
                 });
 
-                this.setState({});
+                this.setState({
+                    columns: columnsClone
+                });
             }
         }
     }
